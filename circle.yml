@@ -1,0 +1,26 @@
+machine:
+  node:
+    version: 6.9.5
+  environment:
+    YARN_VERSION: 0.27.5
+    PATH: "${PATH}:${HOME}/.yarn/bin"
+    REVIEWDOG_VERSION: 0.9.8
+dependencies:
+  cache_directories:
+    - ~/.cache/yarn/
+    - ~/.yarn/
+  pre:
+    - |-
+      if [[ ! -e ~/.yarn/bin/yarn || $(yarn --version) != "${YARN_VERSION}" ]]; then
+        curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version $YARN_VERSION
+      fi
+    - curl -fSL https://github.com/haya14busa/reviewdog/releases/download/$REVIEWDOG_VERSION/reviewdog_linux_amd64 -o reviewdog && chmod +x ./reviewdog
+test:
+  override:
+    - ./reviewdog -strip=2 -ci="circle-ci"
+# experimental:
+#   notify:
+#     branches:
+#       only:
+#         - master
+#         - release
